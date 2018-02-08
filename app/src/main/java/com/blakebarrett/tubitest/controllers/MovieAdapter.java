@@ -2,8 +2,6 @@ package com.blakebarrett.tubitest.controllers;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,10 +10,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.blakebarrett.tubitest.R;
-import com.blakebarrett.tubitest.api.TubiAPI;
 import com.blakebarrett.tubitest.models.IMovie;
 
-import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -24,16 +20,17 @@ import java.util.ArrayList;
 
 public class MovieAdapter extends BaseAdapter{
 
-    private final ArrayList<IMovie> movies;
+    private ArrayList<IMovie> mMovies;
+    private ImageCache imageCache;
 
     private final Context mContext;
     private LayoutInflater mInflater;
 
-    public MovieAdapter(Context context) {
+    public MovieAdapter(final Context context, final ArrayList<IMovie> movies) {
         super();
         this.mContext = context;
+        this.mMovies = movies;
         this.mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        this.movies = TubiAPI.fetchMovies();
     }
 
     /**
@@ -43,7 +40,7 @@ public class MovieAdapter extends BaseAdapter{
      */
     @Override
     public int getCount() {
-        return movies.size();
+        return mMovies.size();
     }
 
     /**
@@ -54,8 +51,8 @@ public class MovieAdapter extends BaseAdapter{
      * @return The data at the specified position.
      */
     @Override
-    public Object getItem(int position) {
-        return movies.get(position);
+    public Object getItem(final int position) {
+        return mMovies.get(position);
     }
 
     /**
@@ -65,35 +62,22 @@ public class MovieAdapter extends BaseAdapter{
      * @return The id of the item at the specified position.
      */
     @Override
-    public long getItemId(int position) {
+    public long getItemId(final int position) {
         return position;
     }
 
     /**
      * Generally, I prefer mot to mutate arguments, but since the view is a "physical" object
      * ultimately, we have to modify it in the end.
-     * @param imageView
-     * @param url
      */
-    private void upateImageViewWithContentsOfURL(final ImageView imageView, final URL url) {
-        new AsyncTask<Void, Void, Void>() {
-
+    private void upateImageViewWithContentsOfURL(final ImageView imageView, final IMovie movie) {
+        imageView.post(new Runnable() {
             @Override
-            protected Void doInBackground(Void... voids) {
-                try {
-                    final Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-                    imageView.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            imageView.setImageBitmap(bmp);
-                        }
-                    });
-                } catch (final Exception e) {
-
-                }
-                return null;
+            public void run() {
+                final Bitmap bmp = ImageCache.getImage(movie);
+                imageView.setImageBitmap(bmp);
             }
-        }.execute();
+        });
     }
 
     /**
@@ -115,15 +99,15 @@ public class MovieAdapter extends BaseAdapter{
      * @return A View corresponding to the data at the specified position.
      */
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, final View convertView, final ViewGroup parent) {
         final View rowView = mInflater.inflate(R.layout.movie_list_item, parent, false);
         final ImageView imageView = rowView.findViewById(R.id.moviePosterImage);
         final TextView titleTextView = rowView.findViewById(R.id.movieTitle);
         final TextView idTextView = rowView.findViewById(R.id.movieId);
 
-        final IMovie movie = movies.get(position);
+        final IMovie movie = mMovies.get(position);
 
-        upateImageViewWithContentsOfURL(imageView, movie.getImageURL());
+        upateImageViewWithContentsOfURL(imageView, movie);
         titleTextView.setText(movie.getTitle());
         idTextView.setText(movie.getId());
 

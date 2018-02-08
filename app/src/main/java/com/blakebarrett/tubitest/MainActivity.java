@@ -1,10 +1,10 @@
 package com.blakebarrett.tubitest;
 
 import android.app.Activity;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.ListView;
 
+import com.blakebarrett.tubitest.api.MovieManager;
 import com.blakebarrett.tubitest.controllers.MovieAdapter;
 
 public class MainActivity extends Activity {
@@ -21,16 +21,13 @@ public class MainActivity extends Activity {
     }
 
     private void fetchMovies() {
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                adapter = new MovieAdapter(MainActivity.this);
-                return null;
-            }
+        MovieManager.LoadMovies(new MovieManager.MoviesLoadedCallback() {
 
-            protected void onPostExecute (Void result) {
+            @Override
+            public void run() {
+                adapter = new MovieAdapter(MainActivity.this, this.movies);
                 listView.setAdapter(adapter);
             }
-        }.execute();
+        });
     }
 }
