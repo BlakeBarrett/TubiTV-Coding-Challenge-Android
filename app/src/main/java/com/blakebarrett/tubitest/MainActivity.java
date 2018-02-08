@@ -13,7 +13,7 @@ public class MainActivity extends Activity {
     private MovieAdapter adapter;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         this.listView = findViewById(R.id.movies_list_view);
@@ -29,5 +29,18 @@ public class MainActivity extends Activity {
                 listView.setAdapter(adapter);
             }
         });
+    }
+
+    @Override
+    public void onRestoreInstanceState(final Bundle savedInstanceState) {
+        adapter.setMovies(MovieManager.deserialize(savedInstanceState));
+    }
+
+    // invoked when the activity may be temporarily destroyed, save the instance state here
+    @Override
+    public void onSaveInstanceState(final Bundle outState) {
+        final Bundle state = MovieManager.serialize(adapter);
+        // call superclass to save any view hierarchy
+        super.onSaveInstanceState(state);
     }
 }

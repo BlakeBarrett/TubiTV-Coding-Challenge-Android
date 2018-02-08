@@ -1,5 +1,7 @@
 package com.blakebarrett.tubitest.models;
 
+import android.os.Bundle;
+
 import org.json.JSONObject;
 
 import java.net.MalformedURLException;
@@ -11,13 +13,33 @@ import java.net.URL;
 
 public class MovieModel implements IMovie {
 
-    private static final String TITLE_KEY = "title";
+    public static final String TITLE_KEY = "title";
 
-    private static final String IMAGE_URL_KEY = "image";
+    public static final String IMAGE_URL_KEY = "image";
 
-    private static final String ID_KEY = "id";
+    public static final String ID_KEY = "id";
 
-    private final JSONObject data;
+    private JSONObject data;
+
+    public MovieModel(final Bundle value) {
+        final String colon = ": ";
+        final String comma = ", ";
+        // This is a total cheat, but it's a cool idea (IMO) and it works and is fast.
+        final StringBuilder builder = new StringBuilder();
+        builder.append("{");
+        builder.append(TITLE_KEY).append(colon).append(value.getString(TITLE_KEY));
+        builder.append(comma);
+        builder.append(ID_KEY).append(colon).append(value.getString(ID_KEY));
+        builder.append(comma);
+        builder.append(IMAGE_URL_KEY).append(colon).append(value.getString(IMAGE_URL_KEY));
+        builder.append("}");
+        final String jsonString = builder.toString();
+        try {
+            this.data = new JSONObject(jsonString);
+        } catch (final Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     public MovieModel(final JSONObject value) {
         this.data = value;

@@ -25,6 +25,14 @@ public class MovieAdapter extends BaseAdapter{
     private final Context mContext;
     private LayoutInflater mInflater;
 
+    public ArrayList<IMovie> getMovies() {
+        return mMovies;
+    }
+
+    public void setMovies(final ArrayList<IMovie> movies) {
+        this.mMovies = movies;
+    }
+
     public MovieAdapter(final Context context, final ArrayList<IMovie> movies) {
         super();
         this.mContext = context;
@@ -98,18 +106,32 @@ public class MovieAdapter extends BaseAdapter{
      * @return A View corresponding to the data at the specified position.
      */
     @Override
-    public View getView(final int position, final View convertView, final ViewGroup parent) {
-        final View rowView = mInflater.inflate(R.layout.movie_list_item, parent, false);
-        final ImageView imageView = rowView.findViewById(R.id.moviePosterImage);
-        final TextView titleTextView = rowView.findViewById(R.id.movieTitle);
-        final TextView idTextView = rowView.findViewById(R.id.movieId);
+    public View getView(final int position, View convertView, final ViewGroup parent) {
+        final ViewHolder holder;
+        if (convertView == null) {
+            convertView = mInflater.inflate(R.layout.movie_list_item, parent, false);
+            holder = new ViewHolder();
+            holder.imageView = (ImageView) convertView.findViewById(R.id.moviePosterImage);
+            holder.titleView = (TextView) convertView.findViewById(R.id.movieTitle);
+            holder.idView = (TextView) convertView.findViewById(R.id.movieId);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
 
         final IMovie movie = mMovies.get(position);
+        updateImageViewWithContentsOfURL(holder.imageView, movie);
+        holder.titleView.setText(movie.getTitle());
+        holder.idView.setText(movie.getId());
 
-        updateImageViewWithContentsOfURL(imageView, movie);
-        titleTextView.setText(movie.getTitle());
-        idTextView.setText(movie.getId());
+        return convertView;
+    }
 
-        return rowView;
+    // To find more information about the "ViewHolder Pattern", see the docs here:
+    // https://developer.android.com/training/improving-layouts/smooth-scrolling.html
+    private static class ViewHolder {
+        ImageView imageView;
+        TextView titleView;
+        TextView idView;
     }
 }
