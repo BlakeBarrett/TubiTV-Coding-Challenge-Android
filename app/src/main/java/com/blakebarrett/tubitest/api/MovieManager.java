@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import com.blakebarrett.tubitest.controllers.ImageCache;
 import com.blakebarrett.tubitest.models.IMovie;
 
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -17,7 +18,6 @@ import java.util.ArrayList;
 public abstract class MovieManager {
 
     public static void LoadMovies(final MoviesLoadedCallback callback) {
-        final MoviesLoadedCallback onComplete = callback;
         new AsyncTask<Void, Void, ArrayList<IMovie>>() {
 
             @Override
@@ -26,14 +26,13 @@ public abstract class MovieManager {
             }
 
             protected void onPostExecute (final ArrayList<IMovie>result) {
-                LoadImages(result, onComplete);
+                LoadImages(result, callback);
             }
         }.execute();
     }
 
     private static void LoadImages(final ArrayList<IMovie> movies, final MoviesLoadedCallback callback) {
         new ImageCache(movies.size());
-        final MoviesLoadedCallback onComplete = callback;
         new AsyncTask<ArrayList<IMovie>, Void, ArrayList<IMovie>>() {
 
             @Override
@@ -44,7 +43,8 @@ public abstract class MovieManager {
                     final IMovie currentMovie = list.get(i);
                     final URL url = currentMovie.getImageURL();
                     try {
-                        final Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                        final InputStream inputStream = url.openConnection().getInputStream();
+                        final Bitmap bmp = BitmapFactory.decodeStream(inputStream);
                         ImageCache.cacheImage(currentMovie, bmp);
                     } catch (final Exception e) {
                         e.printStackTrace();
@@ -55,7 +55,7 @@ public abstract class MovieManager {
             }
 
             protected void onPostExecute(final ArrayList<IMovie> movies) {
-                onComplete.run(movies);
+                callback.run(movies);
             }
         }.execute(movies);
     }

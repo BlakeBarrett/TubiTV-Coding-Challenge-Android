@@ -21,7 +21,6 @@ import java.util.ArrayList;
 public class MovieAdapter extends BaseAdapter{
 
     private ArrayList<IMovie> mMovies;
-    private ImageCache imageCache;
 
     private final Context mContext;
     private LayoutInflater mInflater;
@@ -70,7 +69,7 @@ public class MovieAdapter extends BaseAdapter{
      * Generally, I prefer mot to mutate arguments, but since the view is a "physical" object
      * ultimately, we have to modify it in the end.
      */
-    private void upateImageViewWithContentsOfURL(final ImageView imageView, final IMovie movie) {
+    private void updateImageViewWithContentsOfURL(final ImageView imageView, final IMovie movie) {
         imageView.post(new Runnable() {
             @Override
             public void run() {
@@ -107,7 +106,7 @@ public class MovieAdapter extends BaseAdapter{
 
         final IMovie movie = mMovies.get(position);
 
-        upateImageViewWithContentsOfURL(imageView, movie);
+        updateImageViewWithContentsOfURL(imageView, movie);
         titleTextView.setText(movie.getTitle());
         idTextView.setText(movie.getId());
 
